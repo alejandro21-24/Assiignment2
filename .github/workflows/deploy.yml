@@ -1,0 +1,63 @@
+name: Deploy to GitHub Pages
+
+# Trigger the workflow when code is pushed to main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Define the jobs that will run
+jobs:
+  # Job to build and test the website
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Step 1: Get the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Step 2: Validate HTML files
+    - name: Validate HTML
+      uses: Cyb3r-Jak3/html5validator-action@v7.2.0
+      with:
+        root: ./
+        
+    # Step 3: Check for broken links
+    - name: Check links
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        config-file: '.github/linters/link-check-config.json'
+      continue-on-error: true
+    
+    # Step 4: Upload the built site for deployment
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./
+
+  # Job to deploy the website (only runs after build-and-test succeeds)
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    
+    # Only deploy if this is a push to main (not a pull request)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    # Set permissions needed for GitHub Pages deployment
+    permissions:
+      pages: write
+      id-token: write
+    
+    # Configure the deployment environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    # Step 1: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
