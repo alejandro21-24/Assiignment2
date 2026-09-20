@@ -1,5 +1,7 @@
 # TechFlow Solutions Website
 
+[![Deploy to GitHub Pages](https://github.com/alejandro21-24/Assiignment2/actions/workflows/deploy.yml/badge.svg)](https://github.com/alejandro21-24/Assiignment2/actions/workflows/deploy.yml)
+
 A modern, responsive website for TechFlow Solutions - a web development company specializing in custom websites for small businesses.
 
 ## Project Structure
