@@ -43,3 +43,5 @@ With manual deployment, a developer might forget a step, skip testing before pus
 Nothing would deploy. The `on:` section only triggers this workflow for pushes to `main` (or pull requests targeting `main`), so pushing to any other branch (e.g. a `feature/...` branch) wouldn't even trigger the workflow to run at all as a direct push event.
 
 The one exception is if that branch is the source of an open pull request into `main` — in that case, the `pull_request` trigger would run the `build-and-test` job (validation and link checking) so the team can see if the changes are safe *before* merging. However, even then, the `deploy` job explicitly checks `if: github.event_name == 'push' && github.ref == 'refs/heads/main'`, so it would still refuse to deploy — deployment only ever happens after code actually lands on `main` via a push (including a merge).
+
+This design reflects a common CI/CD best practice: running validation checks early and often (on every pull request) while reserving actual deployment for a single, trusted branch. It prevents a scenario where an in-progress feature branch accidentally overwrites the live site before it's ready.
